@@ -24,6 +24,7 @@ from training.model import*
 import os
 from training.paths import *
 from training.transforms import test_transforms
+from utils.image_to_video import *
 
 print('here')
 rgb_dir=RGB_DIR
@@ -41,5 +42,8 @@ overlay(rgb_dir,SEGMENTATION_DIR,output_dir=OVERLAY_DIR)
 
 # save data in excel
 Excel(rgb_dir,SEGMENTATION_DIR,output_dir=OUTPUT_DIR)
+
+# convert ransac photos to images
+create_video_from_images(OUTPUT_DIR, 'output_video.mp4', fps=30)
 
 
