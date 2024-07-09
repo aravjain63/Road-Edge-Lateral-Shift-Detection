@@ -16,10 +16,10 @@ from albumentations.pytorch import ToTensorV2
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 from collections import defaultdict
-from model import *
-from utils import *
-from dataset import *
-from transforms import *
+from training.model import *
+from training.utils import *
+from training.ataset import *
+from training.transforms import *
 from paths import *
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -84,8 +84,6 @@ for i, (images, masks) in enumerate(test_loader):
     print(f"Test batch {i}: image shape {images.shape}, mask shape {masks.shape}")
     break
 
-for param in model.downs.parameters():
-    param.requires_grad = False
 
 
 EPOCHS=EPOCHS
@@ -100,6 +98,8 @@ optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 torch.cuda.empty_cache()
 model.load_state_dict(torch.load(os.path.join(BASE_DIR,'pretraining','best_model.pth')))
 
+for param in model.downs.parameters():
+    param.requires_grad = False
 
 
 history, log_dir, checkpoint_dir = train_model(model, train_loader, val_loader, loss_fn, optimizer, DEVICE, epochs=20, patience=10)

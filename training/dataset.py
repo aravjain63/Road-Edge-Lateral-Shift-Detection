@@ -6,6 +6,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
+
 class TuneDataset(Dataset):
     def __init__(self, image_dir, transform=None, test=False):
         self.image_dir = image_dir
@@ -13,7 +14,7 @@ class TuneDataset(Dataset):
         self.transform = transform
         self.images = []
         for f in os.listdir(image_dir):
-            if not f.endswith('_mask.png') and not f.startswith('.'):
+            if not f.endswith('_mask.png') and not f.startswith('.'):#check this
                 if os.path.isfile(os.path.join(image_dir, f)):
                     self.images.append(f)
         logging.info(f"Found {len(self.images)} images in {image_dir}")

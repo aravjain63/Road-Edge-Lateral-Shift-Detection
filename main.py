@@ -32,8 +32,7 @@ os.makedirs(RGB_DIR,exist_ok=True)
 os.makedirs(SEGMENTATION_DIR,exist_ok=True)
 os.makedirs(OVERLAY_DIR,exist_ok=True)
 # extract frames from input_video to rgb_dir
-FrameCapture(INPUT_VIDEO,RGB_DIR)
-# predict segmentation masks
+FrameCapture(INPUT_VIDEO,RGB_DIR,sample_rate=5) #check this
 predict_image(RGB_DIR,out_path=SEGMENTATION_DIR)
 # run ransac algo
 findDistance(rgb_dir,SEGMENTATION_DIR,output_dir=OUTPUT_DIR)

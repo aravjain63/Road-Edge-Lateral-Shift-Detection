@@ -4,19 +4,21 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Dataset paths
-tune_images_path_train = os.path.join(BASE_DIR,'roboflow','train')
-tune_images_path_valid = os.path.join(BASE_DIR,'roboflow','valid')
-tune_images_path_test = os.path.join(BASE_DIR,'roboflow','test')
+
+
+
+tune_images_path_train = os.path.join(BASE_DIR,'roboflow','train')  #check this
+tune_images_path_valid = os.path.join(BASE_DIR,'roboflow','valid') #check this
+tune_images_path_test = os.path.join(BASE_DIR,'roboflow','test') #check this
 TRAIN_CHECKPOINT = os.path.join(BASE_DIR,'training','best_model.pth')
 print('train_checkpoint',TRAIN_CHECKPOINT)
-# change these
 # PREDICTION_PATH = os.path.join(BASE_DIR,'roboflow','test')
 # PREDICTION_OUTPUT_PATH = os.path.join(BASE_DIR,'roboflow','outputs')
 
 # Training parameters
-EPOCHS = 1
+EPOCHS = 200 #check this
 LEARNING_RATE = 1e-3
-BATCH_SIZE = 4
+BATCH_SIZE = 32
 
 # Print paths for debugging
 print(f"BASE_DIR: {BASE_DIR}")

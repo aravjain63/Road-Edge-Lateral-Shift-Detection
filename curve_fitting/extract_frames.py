@@ -1,7 +1,7 @@
 import cv2
 import os
 
-def FrameCapture(path, output_path):
+def FrameCapture(path, output_path,sample_rate =5):
     # Path to video file
     vidObj = cv2.VideoCapture(path)
 
@@ -25,7 +25,7 @@ def FrameCapture(path, output_path):
         if not success:
             break
 
-        if total_count % 5== 0:
+        if total_count % (sample_rate)== 0:
             # Crop the image (top-left quarter)
             height = image.shape[0] // 2
             width = image.shape[1] // 2
