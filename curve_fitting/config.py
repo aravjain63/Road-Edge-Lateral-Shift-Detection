@@ -6,7 +6,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Now you can import from config.py in the main directory
-from config import *  # Or import specific variables/functions as needed
+from config import * 
 
 
 

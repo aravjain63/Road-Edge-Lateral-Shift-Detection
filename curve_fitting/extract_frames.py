@@ -25,7 +25,6 @@ def FrameCapture(path, output_path):
         if not success:
             break
 
-        # Save frame at 0.05-second intervals
         if total_count % 5== 0:
             # Crop the image (top-left quarter)
             height = image.shape[0] // 2

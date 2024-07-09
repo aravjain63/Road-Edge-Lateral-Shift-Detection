@@ -29,6 +29,7 @@ print('here')
 rgb_dir=RGB_DIR
 os.makedirs(RGB_DIR,exist_ok=True)
 os.makedirs(SEGMENTATION_DIR,exist_ok=True)
+os.makedirs(OVERLAY_DIR,exist_ok=True)
 # extract frames from input_video to rgb_dir
 FrameCapture(INPUT_VIDEO,RGB_DIR)
 # predict segmentation masks
