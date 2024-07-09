@@ -44,7 +44,7 @@ def detect_road_edges(binary_map):
     # Apply Canny edge detection
     height = binary_map.shape[0]
 
-    # ignore bottom 20%
+    # ignore bottom 20% for curve fitting
     y_threshold = int(0.8 * height)
 
     # Apply Canny edge detection
