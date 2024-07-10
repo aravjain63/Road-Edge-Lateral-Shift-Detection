@@ -13,7 +13,7 @@ print(BASE_DIR)
 
 
 
-tune_images_path_train = os.path.join(BASE_DIR,'roboflow','train')  #check this
+tune_images_path_train = os.path.join(BASE_DIR,'roboflow','train')  #check this folder name
 tune_images_path_valid = os.path.join(BASE_DIR,'roboflow','valid') #check this
 tune_images_path_test = os.path.join(BASE_DIR,'roboflow','test') #check this
 TRAIN_CHECKPOINT = TRAIN_CHECKPOINT
@@ -22,9 +22,9 @@ print('train_checkpoint',TRAIN_CHECKPOINT)
 # PREDICTION_OUTPUT_PATH = os.path.join(BASE_DIR,'roboflow','outputs')
 
 # Training parameters
-EPOCHS = 200 #check this
+EPOCHS = 1 #check this
 LEARNING_RATE = 1e-3
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 # Print paths for debugging
 print(f"BASE_DIR: {BASE_DIR}")

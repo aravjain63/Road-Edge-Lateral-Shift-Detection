@@ -107,7 +107,7 @@ def train_model(model, train_loader, val_loader, loss_fn, optimizer, device, epo
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            best_model_path = os.path.join(BASE_DIR,'training','best_model.pth')
+            best_model_path = os.path.join(BASE_DIR,checkpoint_dir,'best_model.pth')
             torch.save(model.state_dict(), best_model_path)
             print(f"New best model saved: {best_model_path}")
             early_stopping_counter = 0

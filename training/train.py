@@ -16,14 +16,16 @@ from albumentations.pytorch import ToTensorV2
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 from collections import defaultdict
-from training.model import *
-from training.utils import *
-from training.ataset import *
-from training.transforms import *
+from model import *
+from utils import *
+from dataset import *
+from transforms import *
 from paths import *
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 import time
+
+
 
 train_dataset = TuneDataset(
     image_dir=tune_images_path_train,
@@ -32,7 +34,7 @@ train_dataset = TuneDataset(
 )
 train_loader = DataLoader(
     train_dataset,
-    batch_size=32,
+    batch_size=BATCH_SIZE,
     num_workers=0,
     shuffle=True,
     collate_fn=custom_collate
@@ -46,7 +48,7 @@ val_dataset = TuneDataset(
 )
 val_loader = DataLoader(
     val_dataset,  # Changed from train_dataset to val_dataset
-    batch_size=32,
+    batch_size=BATCH_SIZE,
     num_workers=0,
     shuffle=False,
     collate_fn=custom_collate
@@ -60,7 +62,7 @@ test_dataset = TuneDataset(
 )
 test_loader = DataLoader(  # Changed from val_loader to test_loader
     test_dataset,  # Changed from train_dataset to test_dataset
-    batch_size=32,
+    batch_size=BATCH_SIZE,
     num_workers=0,
     shuffle=False,
     collate_fn=custom_collate
@@ -70,6 +72,7 @@ test_loader = DataLoader(  # Changed from val_loader to test_loader
 print(f"Train dataset size: {len(train_dataset)}")
 print(f"Validation dataset size: {len(val_dataset)}")
 print(f"Test dataset size: {len(test_dataset)}")
+
 
 # Sanity check: Look at a batch from each loader
 for i, (images, masks) in enumerate(train_loader):
@@ -96,15 +99,17 @@ model = UNET(in_channels=3, out_channels=1).to(DEVICE)
 optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 torch.cuda.empty_cache()
-model.load_state_dict(torch.load(os.path.join(BASE_DIR,'pretraining','best_model.pth')))
+model.load_state_dict(torch.load(os.path.join(BASE_DIR,'best_model.pth')))
 
 for param in model.downs.parameters():
     param.requires_grad = False
 
 
-history, log_dir, checkpoint_dir = train_model(model, train_loader, val_loader, loss_fn, optimizer, DEVICE, epochs=20, patience=10)
+history, log_dir, checkpoint_dir = train_model(model, train_loader, val_loader, loss_fn, optimizer, DEVICE, epochs=EPOCHS, patience=10)
 print(f"Training complete. Log directory: {log_dir}")
 print(f"Checkpoints directory: {checkpoint_dir}")
+
+model.load_state_dict(torch.load(os.path.join(BASE_DIR,checkpoint_dir,'best_model.pth')))
 
 metrics = evaluate_model(model, test_dataset, DEVICE)
 print("Model Evaluation Metrics:")
