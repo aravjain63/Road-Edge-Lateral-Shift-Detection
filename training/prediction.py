@@ -32,7 +32,7 @@ def predict_image(path,out_path,transform=test_transforms,model=model):
             image = np.array(Image.open(img_path).convert("RGB"))
             height = image.shape[0]
             # FOR NON ROBOFLOW DATA
-            cropped_image = image[:int(height * 0.75), :]
+            cropped_image = image[:int(height * 0.80), :]
             augmented = transform(image=cropped_image)
             image = augmented['image'].unsqueeze(0).to(DEVICE)
             print(image.shape)
@@ -46,7 +46,7 @@ def predict_image(path,out_path,transform=test_transforms,model=model):
             # //not resized again,further calculations are done on 75% if the image only
             # road_height = int(binary_map1.shape[0] * 0.25)
             # binary_map1[-road_height:, :] = 0
-            cv2.imwrite(os.path.join(out_path,'output{index}_segmentation.png'), binary_map1)
+            cv2.imwrite(os.path.join(out_path,f'output{index}_segmentation.png'), binary_map1)
             # fig, axs = plt.subplots(4, 4, figsize=(15, 5))
             # input_np = image[0].cpu().numpy().transpose(1, 2, 0)
             # pred_np = preds[0].cpu().numpy().squeeze()

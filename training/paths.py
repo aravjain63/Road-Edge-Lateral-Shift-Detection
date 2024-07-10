@@ -1,7 +1,13 @@
 import os
+import sys
+
+# Add the parent directory to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import TRAIN_CHECKPOINT
 
 # Base directory of the project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(BASE_DIR)
 
 # Dataset paths
 
@@ -10,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tune_images_path_train = os.path.join(BASE_DIR,'roboflow','train')  #check this
 tune_images_path_valid = os.path.join(BASE_DIR,'roboflow','valid') #check this
 tune_images_path_test = os.path.join(BASE_DIR,'roboflow','test') #check this
-TRAIN_CHECKPOINT = os.path.join(BASE_DIR,'training','best_model.pth')
+TRAIN_CHECKPOINT = TRAIN_CHECKPOINT
 print('train_checkpoint',TRAIN_CHECKPOINT)
 # PREDICTION_PATH = os.path.join(BASE_DIR,'roboflow','test')
 # PREDICTION_OUTPUT_PATH = os.path.join(BASE_DIR,'roboflow','outputs')

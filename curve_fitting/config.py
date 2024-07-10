@@ -14,6 +14,7 @@ from config import *
 
 # Base directory of the project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(BASE_DIR)
 
 original_matrix = np.array([[458.62594473, 0., 332.48800248],
                             [0., 451.44030872, 229.51157475],

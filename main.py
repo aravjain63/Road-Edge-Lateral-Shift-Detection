@@ -28,14 +28,20 @@ from utils.image_to_video import *
 
 print('here')
 rgb_dir=RGB_DIR
+# all directories are created automatically if they dont exist
 os.makedirs(RGB_DIR,exist_ok=True)
 os.makedirs(SEGMENTATION_DIR,exist_ok=True)
 os.makedirs(OVERLAY_DIR,exist_ok=True)
+os.makedirs(OUTPUT_DIR,exist_ok=True)
+
 # extract frames from input_video to rgb_dir
 FrameCapture(INPUT_VIDEO,RGB_DIR,sample_rate=5) #check this
+
+# create segmentation images for image frames
 predict_image(RGB_DIR,out_path=SEGMENTATION_DIR)
 # run ransac algo
-findDistance(rgb_dir,SEGMENTATION_DIR,output_dir=OUTPUT_DIR)
+# set create_excel and create_images accordingly
+findDistance(rgb_dir,SEGMENTATION_DIR,output_dir=OUTPUT_DIR,create_excel=False,create_images=True)
 # visualise segmentation mask
 overlay(rgb_dir,SEGMENTATION_DIR,output_dir=OVERLAY_DIR)
 
@@ -43,6 +49,6 @@ overlay(rgb_dir,SEGMENTATION_DIR,output_dir=OVERLAY_DIR)
 Excel(rgb_dir,SEGMENTATION_DIR,output_dir=OUTPUT_DIR)
 
 # convert ransac photos to images
-create_video_from_images(OUTPUT_DIR, 'output_video.mp4', fps=30)
+create_video_from_images(OUTPUT_DIR, OUTPUT_VIDEO_PATH, fps=30)
 
 

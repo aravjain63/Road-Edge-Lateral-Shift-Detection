@@ -7,8 +7,17 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
 
-def findDistance(rgb_dir,segmentation_dir,output_dir):
-    rgb_files = ([f for f in os.listdir(rgb_dir) if f.endswith('.jpg')])
+def findDistance(rgb_dir, segmentation_dir, output_dir, create_excel=False,create_images=True):
+    
+    if create_excel == True:
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Road Edge Measurements"
+        headers = ["Image Name", "Left Distance (Linear)", "Right Distance (Linear)", "Forward Distance"]
+        for col, header in enumerate(headers, start=1):
+            ws.cell(row=1, column=col, value=header)
+    
+    rgb_files = [f for f in os.listdir(rgb_dir) if f.endswith('.jpg')]
     count = 0
     # Iterate through the files
     for rgb_file in tqdm(rgb_files, desc="Processing images"):
@@ -23,10 +32,8 @@ def findDistance(rgb_dir,segmentation_dir,output_dir):
             print(f"Segmentation file not found for {rgb_file} in 1. Skipping.")
             break
 
-
         original_image = cv2.imread(rgb_path)
         segmented_image1 = cv2.imread(segmentation_path1, cv2.IMREAD_UNCHANGED)
-        # print(segmented_image1.shape)
         height = original_image.shape[0]
         crop_height = int(height * 0.80)
         original_image_cropped = original_image[:crop_height, :]
@@ -35,23 +42,20 @@ def findDistance(rgb_dir,segmentation_dir,output_dir):
         scale_x = 128 / original_image_cropped.shape[1]
         scale_y = 128 / original_image_cropped.shape[0]
         original_cy = original_matrix[1,2]
-        crop_height = int(height * 0.75)
         cy_cropped = (original_cy - 0) / crop_height * height  # Assuming crop starts from top (0)
         camera_matrix = np.array([[original_matrix[0,0] * scale_x, 0., original_matrix[0,2] * scale_x],
-                            [0., original_matrix[1,1] * scale_y, original_matrix[1,2] * scale_y * 0.75],  # Adjust y-center for cropping
+                            [0., original_matrix[1,1] * scale_y, original_matrix[1,2] * scale_y * 0.80],  # Adjust y-center for cropping
                             [0., 0., 1.]])    
         # Detect road edges and calculate distances
         ransac_min, ransac_max, edges = detect_road_edges(binary_map1)
         
         # Create visualization (using existing code)
-        plt.figure(figsize=(12, 8))
-        plt.imshow(cv2.cvtColor(original_image_resized, cv2.COLOR_BGR2RGB))
         
-        camera_center_x = original_image_resized.shape[1] / 2
-        camera_center_y = original_image_resized.shape[0] / 2
 
         # Define the fixed y-coordinate (you can adjust this value)
-        fixed_y = int(binary_map1.shape[0] * 0.90)  # 80% down the image
+        fixed_y = int(binary_map1.shape[0] * 0.90)  # 90% down the image
+        camera_center_x = original_image_resized.shape[1] / 2
+        camera_center_y = original_image_resized.shape[0] / 2
 
         # Calculate x-coordinates for left and right edges at the fixed y
         left_x = ransac_min.predict([[fixed_y]])[0]
@@ -60,44 +64,54 @@ def findDistance(rgb_dir,segmentation_dir,output_dir):
         # Calculate distances for left and right edges
         left_distance, right_distance, forward_distance, left_euclidean, right_euclidean = estimate_distances_to_edges(
             left_x, right_x, camera_center_x, known_road_width, camera_matrix, camera_height, camera_pitch, fixed_y)
-        # Visualization (similar to your original code, with updated annotations)
-        plt.axhline(y=fixed_y, color='yellow', linestyle='--', linewidth=2)
-        plt.scatter(left_x, fixed_y, color='red', s=100)
-        plt.scatter(right_x, fixed_y, color='green', s=100)
-        plt.scatter(camera_center_x, camera_center_y, color='blue', s=100, marker='x')
-        plt.plot([camera_center_x, left_x], [camera_center_y, fixed_y], color='red', linestyle='--')
-        plt.plot([camera_center_x, right_x], [camera_center_y, fixed_y], color='green', linestyle='--')
+        if(create_images==True):
+            plt.figure(figsize=(12, 8))
+            plt.imshow(cv2.cvtColor(original_image_resized, cv2.COLOR_BGR2RGB))
+            # Visualization (similar to your original code, with updated annotations)
+            plt.axhline(y=fixed_y, color='yellow', linestyle='--', linewidth=2)
+            plt.scatter(left_x, fixed_y, color='red', s=100)
+            plt.scatter(right_x, fixed_y, color='green', s=100)
+            plt.scatter(camera_center_x, camera_center_y, color='blue', s=100, marker='x')
+            plt.plot([camera_center_x, left_x], [camera_center_y, fixed_y], color='red', linestyle='--')
+            plt.plot([camera_center_x, right_x], [camera_center_y, fixed_y], color='green', linestyle='--')
 
-        y_range = np.array(range(original_image_resized.shape[0]))
-        plt.plot(ransac_min.predict(y_range.reshape(-1, 1)), y_range, color='red', linewidth=2)
-        plt.plot(ransac_max.predict(y_range.reshape(-1, 1)), y_range, color='green', linewidth=2)
+            y_range = np.array(range(original_image_resized.shape[0]))
+            plt.plot(ransac_min.predict(y_range.reshape(-1, 1)), y_range, color='red', linewidth=2)
+            plt.plot(ransac_max.predict(y_range.reshape(-1, 1)), y_range, color='green', linewidth=2)
 
-        plt.title('Road Edges and Distances from Car Centerline')
-        plt.axis('on')
+            plt.title('Road Edges and Distances from Car Centerline')
+            plt.axis('on')
 
-        plt.annotate(f'Left: {left_distance:.2f}m (L)', 
-                    (left_x, fixed_y), xytext=(10, -20), textcoords='offset points')
-        plt.annotate(f'Right: {right_distance:.2f}m (L)', 
-                    (right_x, fixed_y), xytext=(10, 20), textcoords='offset points')
-        # plt.plot([camera_center_x, camera_center_x], [camera_center_y, fixed_y], color='blue', linestyle=':')
-        plt.plot([left_x, right_x], [fixed_y, fixed_y], color='yellow', linewidth=2)
+            plt.annotate(f'Left: {left_distance:.2f}m (L)', 
+                        (left_x, fixed_y), xytext=(10, -20), textcoords='offset points')
+            plt.annotate(f'Right: {right_distance:.2f}m (L)', 
+                        (right_x, fixed_y), xytext=(10, 20), textcoords='offset points')
+            plt.plot([left_x, right_x], [fixed_y, fixed_y], color='yellow', linewidth=2)
 
-        # plt.annotate('Camera Position', (camera_center_x, camera_center_y), xytext=(10, 10), 
-        #             textcoords='offset points', color='blue')
-        plt.annotate('Measurement Line', (left_x, fixed_y), xytext=(10, -30), 
-                    textcoords='offset points', color='yellow')
-        plt.legend(['Fixed Y-line', 'Left Edge Point', 'Right Edge Point', 
-                    'Left Distance', 'Right Distance', 'Left Edge', 'Right Edge'])
+            plt.annotate('Measurement Line', (left_x, fixed_y), xytext=(10, -30), 
+                        textcoords='offset points', color='yellow')
+            plt.legend(['Fixed Y-line', 'Left Edge Point', 'Right Edge Point', 
+                        'Left Distance', 'Right Distance', 'Left Edge', 'Right Edge'])
 
-        output_path = os.path.join(output_dir, f"result_{rgb_file}")
-        plt.savefig(output_path)
-        # plt.show()
+            output_path = os.path.join(output_dir, f"result_{rgb_file}")
+            plt.savefig(output_path)
+            plt.close()
         
-        # Save the figure
-        plt.close()
-        count +=1
+        if create_excel == 1:
+            row = ws.max_row + 1
+            ws.cell(row=row, column=1, value=(rgb_file.split('_jpg', 1)[0].split('output',1)[1]))
+            ws.cell(row=row, column=2, value=left_distance)
+            ws.cell(row=row, column=3, value=right_distance)
+            ws.cell(row=row, column=4, value=forward_distance)
+        
+        count += 1
+    
+    if create_excel == True:
+        excel_output_path = os.path.join(output_dir, "road_edge_measurements.xlsx")
+        wb.save(excel_output_path)
+        print(f"Excel file saved at: {excel_output_path}")
+    
     print("Processing complete.")
-
 
 
 def overlay(rgb_dir,segmentation_dir,output_dir):
